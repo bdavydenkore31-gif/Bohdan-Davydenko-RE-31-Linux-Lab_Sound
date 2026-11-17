@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SDR · Спектр і водоспад</title>
+<style>
+:root{color-scheme:dark;font:16px system-ui,sans-serif;color:#e8edf7;background:#0b111e;--accent:#6ee7d1;--muted:#aab7cd}
+*{box-sizing:border-box}body{max-width:1060px;margin:auto;padding:25px 16px}a,strong{color:var(--accent)}
+h1{font-size:clamp(25px,5vw,40px);margin:12px 0 5px}h2{font-size:18px;margin:0 0 12px}p{color:var(--muted);line-height:1.5}
+section{border:1px solid #28364d;background:#111c2e;border-radius:15px;padding:17px;margin-top:16px}
+.bar{display:flex;align-items:center;flex-wrap:wrap;gap:12px}.wide{flex:1;min-width:180px}.axis{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:13px;margin:6px 0 14px}
+button,input,select{font:inherit;color:inherit;max-width:100%}button,select,input[type=number],input[type=file]{border:1px solid #425675;background:#18273e;border-radius:8px;padding:7px 11px}input[type=file]{width:100%}input[type=number]{width:116px}input[type=range]{accent-color:var(--accent)}button{cursor:pointer}button:disabled{opacity:.5;cursor:default}
+canvas{display:block;width:100%;background:#080e19;border-radius:6px}.raster{height:clamp(230px,43vw,440px);cursor:crosshair}#power{height:155px}.gradient{height:9px;width:130px;background:linear-gradient(90deg,#0b1636,#194db4,#18b2aa,#ffe66d);display:inline-block;border-radius:4px}
+#now{font-variant-numeric:tabular-nums}.error{color:#ffa7aa}[hidden]{display:none!important}small{color:var(--muted)}
+#power.tunable{cursor:crosshair}audio{width:100%;margin:10px 0;display:block}
+button[aria-pressed=true]{border-color:var(--accent);color:var(--accent)}
+#timeline{display:flex;height:28px;border-radius:7px;overflow:hidden;margin:12px 0;background:#28364d}
+#timeline button{border:0;padding:0;border-radius:0;min-width:0;background:var(--segment-color)}
+#timeline button:focus-visible{outline:2px solid white;outline-offset:-2px}
+.speech{--segment-color:#70e6ce}.music{--segment-color:#a5a0ff}.mixed{--segment-color:#f8c76c}.music_voice{--segment-color:#f3a78d}.music_vocals{--segment-color:#f28fce}.unknown{--segment-color:#8c9eb8}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--segment-color);margin-right:8px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px}.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;text-align:left;font-variant-numeric:tabular-nums}th,td{padding:10px;border-bottom:1px solid #28364d;white-space:nowrap}th{font-size:13px;color:var(--muted)}
+tbody tr.active{background:#233449}td button{padding:4px 7px;color:var(--accent)}#reportMeta{overflow-wrap:anywhere}
+</style>
+<script src="/fm_report.js" defer></script>
+<script src="/radio.js" defer></script>
+</head>
+<body>
+<h1>Спектр і FM-аналіз</h1>
+<section>
+ <h2>Запис</h2>
+ <label class="wide">Вибери WAV або FFT JSON<input id="file" type="file" accept=".wav,.wave,.json,audio/wav,application/json"></label>
+ <p id="message" role="status">Вибери WAV, щоб побудувати водоспад і проаналізувати звук.</p>
+</section>
+<section id="fmSection" hidden>
+ <h2>Станція й аналіз запису</h2>
+ <div class="bar"><label id="centerLabel" hidden>Центр запису I/Q, МГц <input id="center" type="number" min="0" step="0.001"></label><label id="stationLabel" hidden>Частота станції, МГц <input id="station" type="number" min="0" step="0.001"></label><button id="retry" hidden>Повторити аналіз</button></div>
+ <p id="tuneHint" hidden></p>
+ <p id="fmStatus" role="status"></p><a id="resultLink" href="#result" hidden>Відкрити результат аналізу ↓</a>
+</section>
+<section id="plots" hidden>
+ <h2>Водоспад по всій тривалості запису</h2>
+ <canvas id="waterfall" class="raster" aria-label="Водоспад: горизонталь — частота, вертикаль — час"></canvas>
+ <div class="axis"><span id="fmin"></span><span id="fmid"></span><span id="fmax"></span></div>
+ <div class="bar"><small>Слабший рівень</small><span class="gradient" aria-hidden="true"></span><small>Сильніший рівень</small><small>Початок запису вгорі. Натисни на водоспад, щоб вибрати момент.</small></div>
+ <div class="bar" style="margin-top:12px"><button id="play">Відтворити водоспад</button><input id="time" class="wide" type="range" min="0" value="0" step="1" aria-label="Час у записі"><output id="now"></output><button id="audioLink" hidden>Послухати з цього моменту</button></div>
+</section>
+<section id="analysis" hidden>
+ <h2>Спектр у вибраний момент</h2>
+ <canvas id="power" width="1024" height="155" aria-label="Рівень сигналу за частотою"></canvas>
+ <div class="axis"><span id="minDb"></span><span id="maxDb"></span></div>
+</section>
+<div id="result" hidden>
+ <section><h2>Музика, мовлення й голос</h2><p id="reportMeta"></p><audio id="audio" controls preload="metadata"></audio>
+ <div class="bar"><button id="original" aria-pressed="true">Оригінал</button><button id="neural" aria-pressed="false">Нейроочищення</button></div>
+ <div id="timeline" aria-label="Шкала розмічених фрагментів"></div><div id="legend" class="legend"></div><p id="reportNow"></p></section>
+ <section><h2>Фрагменти запису</h2><div class="scroll"><table>
+ <thead><tr><th>Від</th><th>До</th><th>Вміст</th><th>Тип голосу</th><th>Медіана F0</th></tr></thead><tbody id="rows"></tbody>
+ </table></div></section>
+</div>
+</body>
+</html>

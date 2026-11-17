@@ -1,0 +1,18 @@
+[Unit]
+Description=Local SDR recording viewer
+After=network.target
+
+[Service]
+Type=simple
+# Replace YOUR_USER in all three lines below with your Raspberry Pi username.
+User=YOUR_USER
+WorkingDirectory=/home/YOUR_USER/sdr_monitor
+ExecStart=/home/YOUR_USER/sdr_monitor/.venv/bin/python -m uvicorn sdr_web_app:app --host 127.0.0.1 --port 8000 --workers 1
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
