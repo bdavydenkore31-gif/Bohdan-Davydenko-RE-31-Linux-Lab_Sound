@@ -1,4 +1,4 @@
-# Практична робота № 4 — вебсервіс для аналізу FM-записів
+# Практична робота — вебсервіс для аналізу FM-записів
 
 **Богдан Давиденко · РЕ-31**  
 Середовище: Raspberry Pi OS (ARM64) · Python 3 · FastAPI · NumPy/SciPy · LiteRT та ONNX Runtime · JavaScript/Canvas
@@ -101,3 +101,8 @@ python sdr_web_app.py
 
 Щоб слухати запис і стежити за спектром, вибери момент на водоспаді й натисни **«Послухати з цього моменту»**. Біла лінія й спектр оновлюються за часом плеєра. **«Пауза»** під водоспадом зупиняє звук і лінію.
 
+<img width="1175" height="859" alt="image" src="https://github.com/user-attachments/assets/57a2b50a-eee6-472f-93bf-ebf054b60b68" />
+
+<img width="1127" height="688" alt="image" src="https://github.com/user-attachments/assets/153ef628-c46f-4a47-af44-572c46c675ae" />
+
+<img width="1127" height="688" alt="image" src="https://github.com/user-attachments/assets/70eab72f-141c-4b37-b6b7-39bd95280473" />
