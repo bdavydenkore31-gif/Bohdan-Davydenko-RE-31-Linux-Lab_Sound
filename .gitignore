@@ -17,6 +17,6 @@ known_hosts*
 *.tflite
 data/*
 !data/.gitkeep
-models/*
-!models/.gitkeep
+ai/models/*
+!ai/models/.gitkeep
 recordings/

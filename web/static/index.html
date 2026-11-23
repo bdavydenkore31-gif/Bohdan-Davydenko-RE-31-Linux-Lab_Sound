@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SDR · Спектр і водоспад</title>
+<link rel="stylesheet" href="/style.css">
+<script src="/fm_report.js" defer></script>
+<script src="/radio.js" defer></script>
+</head>
+<body>
+<h1>Спектр і FM-аналіз</h1>
+<section>
+ <h2>Запис</h2>
+ <label class="wide">Вибери WAV або FFT JSON<input id="file" type="file" accept=".wav,.wave,.json,audio/wav,application/json"></label>
+ <p id="message" role="status">Вибери WAV, щоб побудувати водоспад і проаналізувати звук.</p>
+</section>
+<section id="fmSection" hidden>
+ <h2>Станція й аналіз запису</h2>
+ <div class="bar"><label id="centerLabel" hidden>Центр запису I/Q, МГц <input id="center" type="number" min="0" step="0.001"></label><label id="stationLabel" hidden>Частота станції, МГц <input id="station" type="number" min="0" step="0.001"></label><button id="retry" hidden>Повторити аналіз</button></div>
+ <p id="tuneHint" hidden></p>
+ <p id="fmStatus" role="status"></p><a id="resultLink" href="#result" hidden>Відкрити результат аналізу ↓</a>
+</section>
+<!-- Полотно показує весь запис, а горизонтальна лінія позначає поточний час. -->
+<section id="plots" hidden>
+ <h2>Водоспад по всій тривалості запису</h2>
+ <canvas id="waterfall" class="raster" aria-label="Водоспад: горизонталь — частота, вертикаль — час"></canvas>
+ <div class="axis"><span id="fmin"></span><span id="fmid"></span><span id="fmax"></span></div>
+ <div class="bar"><small>Слабший рівень</small><span class="gradient" aria-hidden="true"></span><small>Сильніший рівень</small><small>Початок запису вгорі. Натисни на водоспад, щоб вибрати момент.</small></div>
+ <div class="bar" style="margin-top:12px"><button id="play">Відтворити водоспад</button><input id="time" class="wide" type="range" min="0" value="0" step="1" aria-label="Час у записі"><output id="now"></output><button id="audioLink" hidden>Послухати з цього моменту</button></div>
+</section>
+<section id="analysis" hidden>
+ <h2>Спектр у вибраний момент</h2>
+ <canvas id="power" width="1024" height="155" aria-label="Рівень сигналу за частотою"></canvas>
+ <div class="axis"><span id="minDb"></span><span id="maxDb"></span></div>
+</section>
+<!-- Готовий звіт і дві доріжки з’являються після завершення аналізу. -->
+<div id="result" hidden>
+ <section><h2>Музика, мовлення й голос</h2><p id="reportMeta"></p><audio id="audio" controls preload="metadata"></audio>
+ <div class="bar"><button id="original" aria-pressed="true">Оригінал</button><button id="neural" aria-pressed="false">Нейроочищення</button></div>
+ <div id="timeline" aria-label="Шкала розмічених фрагментів"></div><div id="legend" class="legend"></div><p id="reportNow"></p></section>
+ <section><h2>Фрагменти запису</h2><div class="scroll"><table>
+ <thead><tr><th>Від</th><th>До</th><th>Вміст</th><th>Тип голосу</th><th>Медіана F0</th></tr></thead><tbody id="rows"></tbody>
+ </table></div></section>
+</div>
+</body>
+</html>
